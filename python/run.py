@@ -293,12 +293,12 @@ def part1_2():
                         b += 1
                     num1 = num1 + float(target_row.cells[1].text)
                 a += 1
-            num1 = num1/(a-1)
+            num1 = round(num1/(a-1),2)
             target_table.cell(6,1).text = str(num1)
             if(num1 < 3.2):
-                target_table.cell(6,2).text = "低"
+                target_table.cell(6,2).text = "一般"
             else:
-                target_table.cell(6,2).text = "高"
+                target_table.cell(6,2).text = "良好"
 
     
     #第二个表
@@ -319,7 +319,7 @@ def part1_2():
                         b += 1
                     num2 = num2 + float(target_row.cells[1].text)
                 a += 1
-            num2 = num2/(a-1)
+            num2 = round(num2/(a-1),2)
             target_table.cell(6,1).text = str(num2)
             if(num2 < 3.5):
                 target_table.cell(6,2).text = "一般"
@@ -417,7 +417,7 @@ def part1_4(disease):
                     if float(table.cell(6,1).text) <= 3.5:
                         paras[num].text="（3）该患者心理治疗适宜性总体一般，若采用心理治疗，建议根据各维度的情况对其进行心理健康教育。\n\n\n\n"
                     else:
-                        paras[num].text="（3）（3）该患者的心理治疗适宜性总体良好，提示心理治疗的效率和效果可能较好，建议选择心理治疗。\n\n\n\n"
+                        paras[num].text="（3）该患者的心理治疗适宜性总体良好，提示心理治疗的效率和效果可能较好，建议选择心理治疗。\n\n\n\n"
     doc1.save(K)      
 
 #第二部分1
@@ -595,7 +595,7 @@ def part2_3(disease):
             for table in doc1.tables:
                 if table.cell(0,0).text == "问题解决风格":
                     str = table.cell(1,2).text+table.cell(2,2).text+table.cell(3,2).text
-                    paras[num].text = "（2）在心理干预取向方面，建议"+Content[str]+"。"
+                    paras[num].text = "（2）在心理干预取向方面，建议"+Content[str]+"；"
             num += 1
             #第三句
             for table in doc1.tables:
