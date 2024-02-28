@@ -4,6 +4,9 @@ import datetime
 import re
 import os
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+#设置表格边框实线
+from docx.oxml.ns import qn
+from docx.oxml.shared import OxmlElement
 
 #获取文件路径
 def find_files_by_partial_name(directory, partial_name):
@@ -49,13 +52,14 @@ Content = {'高高高':'思考、感受、行动取向干预均可使用',
            '低低低':'适度使用行动取向干预，减少使用思考、感受取向干预',
            }
 
-#设置表格内文字居中
+#设置表格内文字居中，边框实线
 def center():
     # 设置表格文字居中
     i = 0
     docn  = Document(K)
     for table in docn.tables:
         if i != 0:
+            table.style = 'Table Grid'
             for row in table.rows:
                 for cell in row.cells:
                     # 获取单元格中的段落
@@ -64,6 +68,7 @@ def center():
                     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
         else:
             i += 1
+    
     docn.save(K)
 
 
@@ -125,17 +130,17 @@ def table_0(doctor,disease):
         if(num=="1"):
             delease("抑郁状态",doc_name)
         elif(num=="2"):
-            delease("广泛焦虑状态",doc_name)
+            delease("焦虑状态",doc_name)
         elif(num=="3"):
             delease("惊恐发作",doc_name)
         elif(num=="4"):
             delease("恐怖症",doc_name)
         elif(num=="5"):
-            delease("社交焦虑状态",doc_name)
+            delease("社交焦虑",doc_name)
         elif(num=="6"):
             delease("睡眠障碍",doc_name)
         elif(num=="7"):
-            delease("双相情感状态",doc_name)
+            delease("心境（情感）障碍",doc_name)
         elif(num=="8"):
             delease("强迫状态",doc_name)
         elif(num=="9"):
@@ -571,7 +576,7 @@ def part2_3(disease):
                 if disease[0] == '1':
                     paras[num].text = "（1）对于该患者来说，具有循证心理治疗证据的疗法有：认知行为疗法、认知行为疗法第三浪潮、人际关系疗法、理性情绪行为疗法、短程心理动力疗法等;"
                 elif disease[0] == '2':
-                    paras[num].text = "（1）对于该患者来说，具有循证心理治疗证据的疗法有：认知行为疗法、妈妈力：提升母亲/家庭心理弹性;"
+                    paras[num].text = "（1）对于该患者来说，具有循证心理治疗证据的疗法有：认知行为疗法;"
                 elif disease[0] == '3':
                     paras[num].text = "（1）对于该患者来说，具有循证心理治疗证据的疗法有：认知行为疗法、行为疗法;"
                 elif disease[0] == '4':  #未知 特定的恐怖症
@@ -639,8 +644,8 @@ def timer():
 
 def main():
     doctor =  input("请输入医生姓名：")
-    disease0 = input("1.抑郁状态\n2.广泛焦虑状态\n3.惊恐发作\n4.恐怖症\n5.社交焦虑状态\
-                    \n6.睡眠障碍\n7.双向感情障碍\n8.强迫状态\n9.创伤后应激障碍\
+    disease0 = input("1.抑郁状态\n2.焦虑状态\n3.惊恐发作\n4.恐怖症\n5.社交焦虑\
+                    \n6.睡眠障碍\n7.心境（情感）障碍\n8.强迫状态\n9.创伤后应激障碍\
                     \n10.神经性贪食症\n11.神经性厌食症\n请输入疾病序号:(多个病症请用逗号隔开)\n")
     disease = re.split('，|,',disease0)
     table_0(doctor,disease)
@@ -657,4 +662,3 @@ def main():
 
 
 main()
-
