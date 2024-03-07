@@ -1,13 +1,10 @@
 from docx import Document
 from copy import deepcopy
-import datetime
-import re
-import os
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-#设置表格边框实线
-from docx.oxml.ns import qn
-from docx.oxml.shared import OxmlElement
-
+import datetime,re,os,shutil
+from docx.enum.text import WD_ALIGN_PARAGRAPH,WD_PARAGRAPH_ALIGNMENT
+from docx2pdf import convert
+from docx.shared import Inches,Pt, RGBColor
+from PyPDF2 import PdfMerger
 #获取文件路径
 def find_files_by_partial_name(directory, partial_name):
     found_files = []
@@ -16,11 +13,18 @@ def find_files_by_partial_name(directory, partial_name):
             if partial_name in file:
                 found_files.append(os.path.join(root, file))
     return found_files
+            
+#复制一份模版到source/dynamic/
+def copy():
+    shutil.copy("source/static/1精准心理治疗评估报告_新模板.docx", "source/end/1精准心理治疗评估报告_新模板.docx")
+    shutil.copy("source/static/1、封面页.docx", "source/end/1、封面页.docx")
 
 
-M = find_files_by_partial_name("./source","分诊问卷")[0]
-N = find_files_by_partial_name("./source","序号")[0]
-K = "source/1精准心理治疗评估报告_新模板.docx"
+M = find_files_by_partial_name("./source/dynamic","分诊问卷")[0]
+N = find_files_by_partial_name("./source/dynamic","序号")[0]
+K = "source/end/1精准心理治疗评估报告_新模板.docx"
+
+
 
 #心理魔方
 Content = {'高高高':'思考、感受、行动取向干预均可使用',
@@ -90,10 +94,12 @@ def search(str):
         
 #用以返回一个表格
 def table_search(str):
-    doc00 = Document('source/循证心理治疗证据.docx')
+    doc00 = Document('source/Static/循证心理治疗证据.docx')
     for table in doc00.tables:
         if table.cell(1,0).text == str:
             return table
+
+
 
 #填充第一个表格
 def table_0(doctor,disease):
@@ -168,7 +174,7 @@ def table_0(doctor,disease):
     
 #第一部分1  可优化（使用表格索引来定位）
 def part1_1(disease):
-    doc00 = Document('source/药物治疗与心理治疗选择的循证依据.docx')
+    doc00 = Document('source/Static/药物治疗与心理治疗选择的循证依据.docx')
     doc1 = Document(K)
     paras = doc1.paragraphs
     str = "1 药物治疗与心理治疗选择的循证依据"
@@ -640,14 +646,141 @@ def timer():
     doc0.save(K)
 
 
+#最后工作，将图片插入到新的word
+def import_jpg():
+    for filename1 in os.listdir("source/end"):
+        if filename1.endswith(".jpg"):
+            # 创建新的Word文档
+            new_doc = Document()
+            # 在新文档的第一页前插入图片
+            section = new_doc.sections[0]
+            header = section.header
+            paragraph = header.paragraphs[0]
+            run = paragraph.add_run()
+            run.add_picture('source/end/'+filename1, width=Inches(6), height=Inches(8.25))
+            # 保存修改后的新文档
+            new_doc.save('source/end/image.docx')
+            os.remove('source/end/'+filename1)
 
+# #修改封面内容
+def change(doctor,Psychologist):
+    doc_name = Document("source/end/1、封面页.docx")
+    table = doc_name.tables[0]  #取第一个表格
+    #取到患者姓名的那一格
+    cell_1 = table.cell(0,1)    
+    str = "1.姓名："
+    patient_name = search(str)
+    paragraph = cell_1.paragraphs[0]
+    for run in paragraph.runs:
+        run.text = ''
+    run = paragraph.add_run(patient_name)
+    # # 添加下划线
+    # run.font.underline = True
+    # 设置字体样式
+    font = run.font
+    font.size = Pt(12)
+    # font.bold = True
+    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # 设置段落对齐方式为居中
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    # 设置段落的行间距，实现上下居中对齐的效果
+    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
 
+    #取到doctor姓名的那一格
+    cell_2 = table.cell(1,1)    
+    paragraph = cell_2.paragraphs[0]
+    for run in paragraph.runs:
+        run.text = ''
+    run = paragraph.add_run(doctor)
+    # # 添加下划线
+    # run.font.underline = True
+    # 设置字体样式
+    font = run.font
+    font.size = Pt(12)
+    # font.bold = True
+    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # 设置段落对齐方式为居中
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    # 设置段落的行间距，实现上下居中对齐的效果
+    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
+
+    #取到doctor姓名的那一格
+    cell_3 = table.cell(2,1)    
+    paragraph = cell_3.paragraphs[0]
+    for run in paragraph.runs:
+        run.text = ''
+    paragraph.add_run(Psychologist)
+    # # 添加下划线
+    # run.font.underline = True
+    # 设置字体样式
+    font = run.font
+    font.size = Pt(12)
+    # font.bold = True
+    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # 设置段落对齐方式为居中
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    # 设置段落的行间距，实现上下居中对齐的效果
+    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
+
+    #取到time的那一格
+    cell_3 = table.cell(3,1) 
+    paragraph = cell_3.paragraphs[0]
+    data = datetime.date.today().strftime("%Y-%m-%d")
+    for run in paragraph.runs:
+        run.text = ''
+    paragraph.add_run(data)  
+    # # 添加下划线
+    # run.font.underline = True
+    # 设置字体样式
+    font = run.font
+    font.size = Pt(12)
+    # font.bold = True
+    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # 设置段落对齐方式为居中
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    # 设置段落的行间距，实现上下居中对齐的效果
+    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
+
+    doc_name.save("source/end/1、封面页.docx")
+    
+
+#转pdf
+def convert_to_pdf():
+    # 定义包含Word文档的文件夹路径
+    folder_path = 'source/end'
+    # 将文件夹中的所有Word文档转换为PDF
+    convert(folder_path)
+    for filename1 in os.listdir("source/end"):
+        if filename1.endswith(".docx"):
+            os.remove("source/end/"+filename1)
+#合pdf
+def merge_pdfs():
+    merger = PdfMerger()
+    merger.append('source/end/1、封面页.pdf')
+    merger.append('source/end/image.pdf')
+    for filename1 in os.listdir("source/end"):
+        if "2" in filename1 and '精准心理诊疗报告' not in filename1:
+            merger.append('source/end/'+filename1)
+    merger.append('source/end/1精准心理治疗评估报告_新模板.pdf')
+    # 将合并的PDF文件保存到输出路径
+    merger.write('output.pdf')
+    # 关闭合并器
+    merger.close()
+    
+
+    
 def main():
     doctor =  input("请输入医生姓名：")
+    Psychologist = input("请输入治疗师姓名：")
     disease0 = input("1.抑郁状态\n2.焦虑状态\n3.惊恐发作\n4.恐怖症\n5.社交焦虑\
                     \n6.睡眠障碍\n7.心境（情感）障碍\n8.强迫状态\n9.创伤后应激障碍\
                     \n10.神经性贪食症\n11.神经性厌食症\n请输入疾病序号:(多个病症请用逗号隔开)\n")
     disease = re.split('，|,',disease0)
+    copy()
     table_0(doctor,disease)
     part1_1(disease)
     part1_2()
@@ -658,7 +791,14 @@ def main():
     part2_3(disease)
     center()
     timer()
+    #文件合并
+    change(doctor,Psychologist)
+    import_jpg()
+    convert_to_pdf()
+    merge_pdfs()
 
 
 
 main()
+
+
