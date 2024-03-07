@@ -1,10 +1,11 @@
 from docx import Document
 from copy import deepcopy
 import datetime,re,os,shutil
-from docx.enum.text import WD_ALIGN_PARAGRAPH,WD_PARAGRAPH_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH,WD_PARAGRAPH_ALIGNMENT,WD_BREAK
 from docx2pdf import convert
 from docx.shared import Inches,Pt, RGBColor
 from PyPDF2 import PdfMerger
+
 #获取文件路径
 def find_files_by_partial_name(directory, partial_name):
     found_files = []
@@ -167,8 +168,8 @@ def table_0(doctor,disease):
     #添加报告日期
     cell_1 = table.cell(1,2)
     paragraph = cell_1.paragraphs[0]
-    data = datetime.date.today().strftime("%Y-%m-%d")
-    paragraph.add_run(data)
+    date = datetime.date.today().strftime("%Y-%m-%d")
+    paragraph.add_run(date)
     doc_name.save(K)
 
     
@@ -184,6 +185,7 @@ def part1_1(disease):
     for num in range(len(paras)) :
         if str == paras[num].text :
             num += 1
+            num1 = num
             for A in disease:
                 if(A=="1"):                                                   
                     if(age >= 18):
@@ -280,7 +282,6 @@ def part1_1(disease):
                     new_table = deepcopy(table)
                     paragraph = paras[num].insert_paragraph_before()
                     paragraph._p.addnext(new_table._element)
-
     doc1.save(K)
 
 #第一部分2
@@ -308,8 +309,10 @@ def part1_2():
             target_table.cell(6,1).text = str(num1)
             if(num1 < 3.2):
                 target_table.cell(6,2).text = "一般"
+                
             else:
                 target_table.cell(6,2).text = "良好"
+
 
     
     #第二个表
@@ -440,6 +443,7 @@ def part2_1(disease):
     for num in range(len(paras)) :
         if str == paras[num].text :
             num += 1
+            num1 = num
             for A in disease:
                 if(A=="1"):
                     table = table_search("抑郁障碍")
@@ -497,7 +501,6 @@ def part2_1(disease):
                     paragraph = paras[num].insert_paragraph_before()
                     paragraph._p.addnext(new_table._element)
     doc1.save(K)
-    doc1 = Document(K)
                 
 #第二部分2  
 def part2_2():
@@ -728,10 +731,15 @@ def change(doctor,Psychologist):
     #取到time的那一格
     cell_3 = table.cell(3,1) 
     paragraph = cell_3.paragraphs[0]
-    data = datetime.date.today().strftime("%Y-%m-%d")
+    # 获取当前日期
+    current_date = datetime.date.today()
+    # 将日期加一天
+    next_date = current_date + datetime.timedelta(days=1)
+    # 将日期格式化为指定格式
+    date = next_date.strftime("%Y-%m-%d")
     for run in paragraph.runs:
         run.text = ''
-    paragraph.add_run(data)  
+    paragraph.add_run(date)  
     # # 添加下划线
     # run.font.underline = True
     # 设置字体样式
@@ -757,6 +765,7 @@ def convert_to_pdf():
     for filename1 in os.listdir("source/end"):
         if filename1.endswith(".docx"):
             os.remove("source/end/"+filename1)
+
 #合pdf
 def merge_pdfs():
     merger = PdfMerger()
@@ -767,12 +776,22 @@ def merge_pdfs():
             merger.append('source/end/'+filename1)
     merger.append('source/end/1精准心理治疗评估报告_新模板.pdf')
     # 将合并的PDF文件保存到输出路径
-    merger.write('output.pdf')
+    merger.write('心理报告.pdf')
     # 关闭合并器
     merger.close()
-    
 
-    
+#删掉没用文件
+def delete():
+    for filename in os.listdir("source/dynamic"):
+        file_path = os.path.join("source/dynamic", filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    for filename in os.listdir("source/end"):
+        file_path = os.path.join("source/end", filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+
+
 def main():
     doctor =  input("请输入医生姓名：")
     Psychologist = input("请输入治疗师姓名：")
@@ -797,8 +816,10 @@ def main():
     convert_to_pdf()
     merge_pdfs()
 
-
+    delete()
 
 main()
+
+
 
 
