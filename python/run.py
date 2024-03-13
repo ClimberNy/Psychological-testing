@@ -680,15 +680,15 @@ def change(doctor,Psychologist):
     # # 添加下划线
     # run.font.underline = True
     # 设置字体样式
-    font = run.font
-    font.size = Pt(12)
+    font1 = run.font
+    font1.size = Pt(13)
     # font.bold = True
-    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
     # 设置段落对齐方式为居中
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     # 设置段落的行间距，实现上下居中对齐的效果
-    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
-    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
+    paragraph.paragraph_format.space_after = Pt(0)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(9)  # 设置段前间距
 
     #取到doctor姓名的那一格
     cell_2 = table.cell(1,1)    
@@ -699,34 +699,34 @@ def change(doctor,Psychologist):
     # # 添加下划线
     # run.font.underline = True
     # 设置字体样式
-    font = run.font
-    font.size = Pt(12)
+    font2 = run.font
+    font2.size = Pt(13)
     # font.bold = True
-    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
     # 设置段落对齐方式为居中
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     # 设置段落的行间距，实现上下居中对齐的效果
-    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
-    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
+    paragraph.paragraph_format.space_after = Pt(0)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(9)  # 设置段前间距
 
     #取到doctor姓名的那一格
     cell_3 = table.cell(2,1)    
     paragraph = cell_3.paragraphs[0]
     for run in paragraph.runs:
         run.text = ''
-    paragraph.add_run(Psychologist)
+    run = paragraph.add_run(Psychologist)
     # # 添加下划线
     # run.font.underline = True
     # 设置字体样式
-    font = run.font
-    font.size = Pt(12)
+    font3 = run.font
+    font3.size = Pt(13)
     # font.bold = True
-    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
     # 设置段落对齐方式为居中
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     # 设置段落的行间距，实现上下居中对齐的效果
-    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
-    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
+    paragraph.paragraph_format.space_after = Pt(0)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(9)  # 设置段前间距
 
     #取到time的那一格
     cell_3 = table.cell(3,1) 
@@ -739,19 +739,19 @@ def change(doctor,Psychologist):
     date = next_date.strftime("%Y-%m-%d")
     for run in paragraph.runs:
         run.text = ''
-    paragraph.add_run(date)  
+    run = paragraph.add_run(date)  
     # # 添加下划线
     # run.font.underline = True
     # 设置字体样式
-    font = run.font
-    font.size = Pt(12)
+    font4 = run.font
+    font4.size = Pt(13)
     # font.bold = True
-    font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
+    # font.color.rgb = RGBColor(0, 0, 0)  # 设置字体颜色为黑色
     # 设置段落对齐方式为居中
     paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     # 设置段落的行间距，实现上下居中对齐的效果
-    paragraph.paragraph_format.space_after = Pt(5)  # 设置段后间距
-    paragraph.paragraph_format.space_before = Pt(8)  # 设置段前间距
+    paragraph.paragraph_format.space_after = Pt(0)  # 设置段后间距
+    paragraph.paragraph_format.space_before = Pt(9)  # 设置段前间距
 
     doc_name.save("source/end/1、封面页.docx")
     
@@ -767,7 +767,7 @@ def convert_to_pdf():
             os.remove("source/end/"+filename1)
 
 #合pdf
-def merge_pdfs():
+def merge_pdfs(Psychologist):
     merger = PdfMerger()
     merger.append('source/end/1、封面页.pdf')
     merger.append('source/end/image.pdf')
@@ -776,7 +776,17 @@ def merge_pdfs():
             merger.append('source/end/'+filename1)
     merger.append('source/end/1精准心理治疗评估报告_新模板.pdf')
     # 将合并的PDF文件保存到输出路径
-    merger.write('心理报告.pdf')
+    #获取姓名
+    str = "1.姓名："
+    patient_name = search(str)
+    # 获取当前日期
+    current_date = datetime.date.today()
+    # 将日期加一天
+    next_date = current_date + datetime.timedelta(days=1)
+    # 将日期格式化为指定格式
+    date = next_date.strftime("%Y-%m-%d")
+    merger.write(date+'-'+Psychologist+'-'+patient_name+'.pdf')
+    
     # 关闭合并器
     merger.close()
 
@@ -814,7 +824,7 @@ def main():
     change(doctor,Psychologist)
     import_jpg()
     convert_to_pdf()
-    merge_pdfs()
+    merge_pdfs(Psychologist)
 
     delete()
 
